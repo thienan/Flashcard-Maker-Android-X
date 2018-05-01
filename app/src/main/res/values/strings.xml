@@ -12,6 +12,7 @@
     <string name="new_set">New set</string>
     <string name="delete_set">Delete set</string>
     <string name="set_color">Set Color</string>
+    <string name="set_name">Set Name</string>
     <string name="add_to_favorite">Add to favorite</string>
 
 </resources>

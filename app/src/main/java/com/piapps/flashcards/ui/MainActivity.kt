@@ -11,7 +11,9 @@ import com.piapps.flashcards.application.Flashcards
 import com.piapps.flashcards.model.Set
 import com.piapps.flashcards.ui.controller.SetsController
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.uiThread
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                 Flashcards.instance.sets().put(set)
                 val intent = Intent(this@MainActivity, SetActivity::class.java)
                 intent.putExtra("id", set.id)
+                intent.putExtra("isNew", true)
                 startActivity(intent)
             } else {
                 trash.forEach {
@@ -74,8 +77,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        update()
-        loadAdapter(bottomNavigationViewMain.currentItem)
+        doAsync {
+            update()
+            uiThread {
+                loadAdapter(bottomNavigationViewMain.currentItem)
+            }
+        }
+
     }
 
     fun update() {

@@ -14,6 +14,7 @@ import com.piapps.flashcards.model.Set
 import com.piapps.flashcards.ui.SetActivity
 import com.piapps.flashcards.util.DateUtils
 import com.piapps.flashcards.util.Extensions
+import com.piapps.flashcards.util.toColor
 
 /**
  * Created by abduaziz on 4/19/18.
@@ -21,9 +22,10 @@ import com.piapps.flashcards.util.Extensions
 
 class SetsController(var list: ArrayList<Set>) : RecyclerView.Adapter<SetsController.SetViewHolder>() {
 
-    enum class SORTING_ORDER{
-        CREATED_TIME,LAST_EDITED
+    enum class SORTING_ORDER {
+        CREATED_TIME, LAST_EDITED
     }
+
     var sortingOrder: SORTING_ORDER = SORTING_ORDER.LAST_EDITED
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SetViewHolder {
@@ -78,7 +80,10 @@ class SetsController(var list: ArrayList<Set>) : RecyclerView.Adapter<SetsContro
             textViewCount.text = "${set.count} cards"
 
             //todo: set the set color if it exists
-            cardView.setCardBackgroundColor(Extensions.color(set.id))
+            if (set.color.isBlank())
+                cardView.setCardBackgroundColor(Extensions.color(set.id))
+            else
+                cardView.setCardBackgroundColor(set.color.toColor())
         }
 
         override fun onClick(p0: View?) {
