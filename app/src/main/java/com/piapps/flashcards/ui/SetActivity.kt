@@ -9,7 +9,11 @@ import android.view.MenuItem
 import android.view.WindowManager
 import com.piapps.flashcards.R
 import com.piapps.flashcards.application.Flashcards
+import com.piapps.flashcards.model.Card
+import com.piapps.flashcards.model.Card_
 import com.piapps.flashcards.model.Set
+import com.piapps.flashcards.ui.controller.SetController
+import com.piapps.flashcards.ui.fragment.CardFragment
 import com.piapps.flashcards.util.Extensions
 import com.piapps.flashcards.util.toColor
 import com.piapps.flashcards.util.toHexColor
@@ -25,6 +29,8 @@ class SetActivity : AppCompatActivity(), SimpleDialog.OnDialogResultListener {
     // dialogs
     val DIALOG_SET_COLOR = "DIALOG_SET_COLOR"
     val DIALOG_SET_NAME = "DIALOG_SET_NAME"
+
+    lateinit var setController: SetController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +64,27 @@ class SetActivity : AppCompatActivity(), SimpleDialog.OnDialogResultListener {
                     .title(R.string.set_name)
                     .show(this, DIALOG_SET_NAME)
         }
+
+        setController = SetController(set.id, supportFragmentManager)
+        viewPager.adapter = setController
+
+        val query = Flashcards.instance.cards()
+                .query().equal(Card_.setId, set.id)
+                .build()
+        query.find().forEach {
+            setController.addFragment(CardFragment.newInstance(it.id))
+        }
+
+        fab.setOnClickListener {
+            addNewCard()
+        }
+    }
+
+    fun addNewCard() {
+        val card = Card(System.currentTimeMillis(), set.id)
+        Flashcards.instance.cards().put(card)
+        setController.addFragment(CardFragment.newInstance(card.id))
+        viewPager.currentItem = setController.list.size - 1
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -135,6 +162,18 @@ class SetActivity : AppCompatActivity(), SimpleDialog.OnDialogResultListener {
                 window.statusBarColor = it
             }
         }
+    }
+
+    override fun onPause() {
+        set.count = setController.list.size
+        Flashcards.instance.sets().put(set)
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        set.count = setController.list.size
+        Flashcards.instance.sets().put(set)
+        super.onDestroy()
     }
 
 }

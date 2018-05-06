@@ -59,23 +59,27 @@ class SetsController(var list: ArrayList<Set>) : RecyclerView.Adapter<SetsContro
 
         fun bind(position: Int, set: Set) {
 
+            var sortDate = set.lastEdited
+            if (sortingOrder == SORTING_ORDER.CREATED_TIME) {
+                sortDate = set.id
+            }
+
             textViewDate.visibility = VISIBLE
             if (position - 1 >= 0) {
-                if (DateUtils.getDay(list[position - 1].lastEdited).equals(DateUtils.getDay(set.lastEdited))) {
+
+                var prevDate = list[position - 1].lastEdited
+                if (sortingOrder == SORTING_ORDER.CREATED_TIME) {
+                    prevDate = list[position - 1].id
+                }
+
+                if (DateUtils.getDay(prevDate).equals(DateUtils.getDay(sortDate))) {
                     textViewDate.visibility = GONE
                 }
             }
 
-            when (sortingOrder) {
-                SORTING_ORDER.LAST_EDITED -> {
-                    textViewDate.text = "${DateUtils.getDay(set.lastEdited)}"
-                    textViewTime.text = "${DateUtils.getHourMinute(set.lastEdited)}"
-                }
-                SORTING_ORDER.CREATED_TIME -> {
-                    textViewDate.text = "${DateUtils.getDay(set.id)}"
-                    textViewTime.text = "${DateUtils.getHourMinute(set.id)}"
-                }
-            }
+            textViewDate.text = "${DateUtils.getDay(sortDate)}"
+            textViewTime.text = "${DateUtils.getHourMinute(sortDate)}"
+
             textViewTitle.text = set.title
             textViewCount.text = "${set.count} cards"
 
